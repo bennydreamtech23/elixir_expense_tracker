@@ -1,0 +1,55 @@
+<.header>
+Expenses
+  <:actions>
+    <.link patch={~p"/new"}>
+      <.button>New Expense</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="expenses"
+  rows={@streams.expenses}
+  row_click={fn {_id, expense} -> JS.navigate(~p"/#{expense}") end}
+>
+  <:col :let={{_id, expense}} label="Name">{expense.name}</:col>
+  <:col :let={{_id, expense}} label="Description">{expense.description}</:col>
+  <:col :let={{_id, expense}} label="Category">{expense.category}</:col>
+  <:col :let={{_id, expense}} label="Account type">{expense.account_type}</:col>
+  <:col :let={{_id, expense}} label="Amount">{Number.Delimit.number_to_delimited(expense.amount)}</:col>
+  <:action :let={{_id, expense}}>
+    <div class="sr-only">
+      <.link navigate={~p"/#{expense}"}>Show</.link>
+    </div>
+    <.link patch={~p"/#{expense}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, expense}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: expense.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+<div class='flex flex-col items-center justify-between my-8 gap-4'>
+<h1 class='font-bold'>Monthly Summation</h1>
+<div class='flex items-center justify-between gap-4'>
+
+<p>Date: <strong>{@date}</strong></p>
+<p>Total Credit: <strong>{Number.Delimit.number_to_delimited(@total_credit)}</strong></p>
+<p>Total Debit: <strong>{Number.Delimit.number_to_delimited(@total_debit)}</strong> </p>
+<p class='border border-t'>Balance: <strong>{Number.Delimit.number_to_delimited(@balance)}</strong></p>
+</div>
+</div>
+
+<.modal :if={@live_action in [:new, :edit]} id="expense-modal" show on_cancel={JS.patch(~p"/")}>
+  <.live_component
+    module={ExpenseTrackerWeb.ExpenseLive.FormComponent}
+    id={@expense.id || :new}
+    title={@page_title}
+    action={@live_action}
+    expense={@expense}
+    patch={~p"/"}
+  />
+</.modal>
