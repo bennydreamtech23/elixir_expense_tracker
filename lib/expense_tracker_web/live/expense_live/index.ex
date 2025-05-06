@@ -9,8 +9,8 @@ defmodule ExpenseTrackerWeb.ExpenseLive.Index do
   def mount(_params, _session, socket) do
 
 
-    total_debit = Expenses.total_monthly_debit.total_debit
-    total_credit = Expenses.total_monthly_credit.total_credit
+    total_debit = Expenses.total_monthly_debit.total_debit || 0.00
+    total_credit = Expenses.total_monthly_credit.total_credit || 0.00
     date =  Expenses.total_monthly_credit.month
     balance = total_credit - total_debit
 
